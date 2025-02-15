@@ -19,6 +19,9 @@ class ReceiptItemSchema(BaseModel):
         example=2.5,
         description="The quantity or weight of the product/item purchased."
     )
+    total: float = Field(
+        None,
+    )
 
     class Config:
         orm_mode = True
@@ -61,6 +64,42 @@ class ReceiptRequestSchema(BaseModel):
             "amount": 150.75
         },
         description="Payment information for the receipt, including type and amount."
+    )
+
+
+class ReceiptResponseSchema(BaseModel):
+    id: int
+    products: List[ReceiptItemSchema] = Field(
+        ...,
+        example=[
+            {
+                "title": "Laptop",
+                "price": 899.99,
+                "quantity": 1,
+                "total": 899.99,
+            },
+            {
+                "title": "Phone Case",
+                "price": 19.99,
+                "quantity": 2,
+                "total": 39.98,
+            }
+        ],
+        description="A list of products included in the receipt."
+    )
+    # payment: ReceiptPaymentSchema = Field(
+    #     ...,
+    #     example={
+    #         "type": "cash",
+    #         "amount": 150.75
+    #     },
+    #     description="Payment information for the receipt, including type and amount."
+    # )
+    total: float
+    rest: float
+    created_at: datetime | None = Field(
+        None,
+        description="The timestamp when the user account was created.",
     )
 
     class Config:

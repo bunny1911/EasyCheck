@@ -43,5 +43,5 @@ class ReceiptItem(Base):
     # Relationship to 'Receipt' table
     receipt: Mapped["Receipt"] = relationship(
         "Receipt",
-        back_populates="items"
+        back_populates="products"
     )

@@ -53,7 +53,7 @@ class Receipt(Base):
     )
 
     # Relationship to 'ReceiptItem' table
-    items: Mapped[list["ReceiptItem"]] = relationship(
+    products: Mapped[list["ReceiptItem"]] = relationship(
         "ReceiptItem",
         back_populates="receipt"
     )

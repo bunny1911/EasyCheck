@@ -22,7 +22,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-def get_user_id(
+async def get_user_id(
         db_session: AsyncSession = Depends(get_session),
         token: str = Depends(oauth2_scheme)
 ) -> int:

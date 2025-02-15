@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 from app.routes.user.funcs import user_router
-
+from app.routes.receipt.funcs import receipt_router
 
 app = FastAPI(
     title="EasyCheck API",
@@ -13,3 +13,4 @@ app = FastAPI(
 
 # Defined base rout
 app.include_router(user_router)
+app.include_router(receipt_router)
