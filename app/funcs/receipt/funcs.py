@@ -4,7 +4,7 @@ from datetime import datetime
 from fastapi import HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, Query
 from sqlalchemy.future import select
 
 from app.routes.receipt.schema import ReceiptRequestSchema
@@ -92,7 +92,7 @@ async def get_receipt(
     """
 
     # Get receipt from DB
-    receipt = await db_session.scalar(
+    receipt: Receipt | None = await db_session.scalar(
         select(
             Receipt
         ).options(
@@ -144,7 +144,7 @@ async def get_receipts(
     """
 
     # Create a base query for receipts
-    query = select(
+    query: Query = select(
         Receipt
     ).options(
         joinedload(
@@ -176,7 +176,7 @@ async def get_receipts(
 
     # Defined receipts with pagination and filters
     results = await db_session.execute(query)
-    receipts = results.scalars().unique().all()
+    receipts: list[Receipt] = results.scalars().unique().all()
 
     # Defined total count of results
     total = len(receipts)

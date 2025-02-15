@@ -26,7 +26,7 @@ class ReceiptProductRequestSchema(BaseModel):
 
 class ReceiptProductResponseSchema(ReceiptProductRequestSchema):
     total: Decimal = Field(
-        None,
+        ...,
         description="The total price for a single product, calculated by multiplying the quantity by price per unit."
     )
 
