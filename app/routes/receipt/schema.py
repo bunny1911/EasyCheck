@@ -125,3 +125,63 @@ class ReceiptResponseSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ReceiptsRequestSchema(BaseModel):
+    start_date: datetime | None = Field(
+        None,
+        description="Optional filter for the start date of receipts.",
+        example="2023-01-01T00:00:00Z"
+    )
+    end_date: datetime | None = Field(
+        None,
+        description="Optional filter for the end date of receipts.",
+        example="2023-12-31T23:59:59Z"
+    )
+    total: Decimal | None = Field(
+        None,
+        description="Optional filter to get receipts with a total greater than or equal to this value.",
+        example=100.00
+    )
+    payment_type: str | None = Field(
+        None,
+        description="Optional filter to get receipts based on payment type. Values: 'cash' or 'card'.",
+        example="cash"
+    )
+    page: int = Field(
+        1,
+        description="Page number for pagination. Default is 1.",
+        example=1
+    )
+    on_page: int = Field(
+        10,
+        description="Number of records to display per page. Default is 10.",
+        example=10
+    )
+
+
+class ReceiptsResponseSchema(BaseModel):
+    total: int = Field(
+        ...,
+        description="The total number of receipts available after applying filters.",
+        example=100
+    )
+    page: int = Field(
+        ...,
+        description="The current page number in the pagination.",
+        example=1
+    )
+    on_page: int = Field(
+        ...,
+        description="The number of receipts per page.",
+        example=10
+    )
+    next_page: int | None = Field(
+        None,
+        description="The next page number if there are more results. If there are no more results, this will be null.",
+        example=2
+    )
+    results: list[ReceiptResponseSchema]
+
+    class Config:
+        orm_mode = True

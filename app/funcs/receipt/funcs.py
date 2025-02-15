@@ -25,7 +25,7 @@ async def create_receipt(
         receipt_data (ReceiptRequestSchema): Data for creating a receipt.
 
     Returns:
-        ReceiptResponseSchema: The response schema containing the receipt data.
+        dict: Created receipt with include information
     """
 
     # Set default value
@@ -122,8 +122,8 @@ async def get_receipts(
     end_date: datetime | None = None,
     total: float | None = None,
     payment_type: str | None = None,
-    page: int = 0,
-    on_page: int = 10
+    page: int | None = 1,
+    on_page: int | None = 10
 ) -> dict:
     """
     Function to retrieve a list of receipts for a user, applying filters and pagination.
@@ -146,6 +146,10 @@ async def get_receipts(
     # Create a base query for receipts
     query = select(
         Receipt
+    ).options(
+        joinedload(
+            Receipt.products
+        )
     ).filter(
         Receipt.user_id == user_id
     )
@@ -172,7 +176,7 @@ async def get_receipts(
 
     # Defined receipts with pagination and filters
     results = await db_session.execute(query)
-    receipts = results.scalars().all()
+    receipts = results.scalars().unique().all()
 
     # Defined total count of results
     total = len(receipts)

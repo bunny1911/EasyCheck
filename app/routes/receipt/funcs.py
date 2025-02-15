@@ -7,7 +7,7 @@ import app.funcs.receipt.funcs as funcs
 from app.funcs.user.funcs import get_user_id
 from app.db import get_session
 
-from .schema import ReceiptResponseSchema, ReceiptRequestSchema
+from .schema import *
 
 
 receipt_router = APIRouter(
@@ -53,4 +53,29 @@ async def get_receipt_by_id(
         db_session=db_session,
         receipt_id=receipt_id,
         user_id=user_id,
+    )
+
+
+@receipt_router.get(
+    "/",
+    response_model=ReceiptsResponseSchema,
+)
+async def get_receipts(
+    filters_data: ReceiptsRequestSchema,
+    user_id: int = Depends(get_user_id),
+    db_session: AsyncSession = Depends(get_session),
+) -> dict:
+    """
+    Endpoint for retrieve a list of receipts, including associated products and payment details.
+    """
+
+    return await funcs.get_receipts(
+        user_id=user_id,
+        db_session=db_session,
+        start_date=filters_data.start_date,
+        end_date=filters_data.end_date,
+        total=filters_data.total,
+        payment_type=filters_data.payment_type,
+        page=filters_data.page,
+        on_page=filters_data.on_page,
     )
