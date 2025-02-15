@@ -7,7 +7,7 @@ from sqlalchemy import (
     Column,
     Integer,
     DateTime,
-    Float,
+    Numeric,
     ForeignKey,
     String,
 )
@@ -41,10 +41,10 @@ class Receipt(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
-    total = Column(Float(10, 2), nullable=False)
+    total = Column(Numeric(10, 2), nullable=False)
     payment_type = Column(String, nullable=False)
-    payment_amount = Column(Float(10, 2), nullable=False)
-    rest = Column(Float(10, 2), nullable=False)
+    payment_amount = Column(Numeric(10, 2), nullable=False)
+    rest = Column(Numeric(10, 2), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationship to 'User' table
@@ -58,3 +58,14 @@ class Receipt(Base):
         "ReceiptProduct",
         back_populates="receipt"
     )
+
+    @property
+    def payment(self) -> dict:
+        """
+        Returns a dictionary containing payment type and amount.
+        """
+
+        return {
+            "type": self.payment_type,
+            "amount": self.payment_amount,
+        }

@@ -5,7 +5,7 @@ from datetime import datetime
 from pydantic import Field, BaseModel
 
 
-class UserRequestRegisterSchema(BaseModel):
+class UserSchema(BaseModel):
     first_name: str = Field(
         ...,
         example="Wheel",
@@ -21,6 +21,9 @@ class UserRequestRegisterSchema(BaseModel):
         example="wheel_smet",
         description="The unique login (username) for the user.",
     )
+
+
+class UserRequestRegisterSchema(UserSchema):
     password: str = Field(
         ...,
         example="1111111111",
@@ -28,26 +31,10 @@ class UserRequestRegisterSchema(BaseModel):
     )
 
 
-class UserResponseRegisterSchema(BaseModel):
-    first_name: str = Field(
+class UserResponseRegisterSchema(UserSchema):
+    created_at: datetime = Field(
         ...,
-        example="Wheel",
-        description="The first name of the user.",
-    )
-    last_name: str = Field(
-        ...,
-        example="Smet",
-        description="The last name of the user.",
-    )
-    login: str = Field(
-        ...,
-        example="wheel_smet",
-        description="The unique login (username) for the user.",
-    )
-    created_at: datetime | None = Field(
-        default=None,
         description="The timestamp when the user account was created.",
-        exclude=True,
     )
 
     class Config:
@@ -68,6 +55,11 @@ class UserRequestLoginSchema(BaseModel):
 
 
 class UserResponseLoginSchema(BaseModel):
+    token_type: str = Field(
+        ...,
+        example="bearer",
+        description="The type of token."
+    )
     access_token: str = Field(
         ...,
         example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiaWF0IjoxNjEyMzQ1Njc4fQ.Dk69",

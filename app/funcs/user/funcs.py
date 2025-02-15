@@ -208,6 +208,10 @@ async def login_user(
     # Generate jwt-token
     jwt_token = create_access_token(login=login, expires_delta=60)
 
+    # Defined token type
+    token_type = "bearer"
+
     return {
-        "access_token": jwt_token
+        "access_token": jwt_token,
+        "token_type": token_type,
     }

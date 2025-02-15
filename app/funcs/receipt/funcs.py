@@ -1,9 +1,12 @@
+# coding=utf-8
 
-from app.routes.receipt.schema import ReceiptRequestSchema
+from fastapi import HTTPException
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
-from fastapi import HTTPException
 from sqlalchemy.future import select
+
+from app.routes.receipt.schema import ReceiptRequestSchema
 from app.models import Receipt, ReceiptProduct
 
 
@@ -16,8 +19,8 @@ async def create_receipt(
     Function to create a receipt and calculate total values.
 
     Args:
-        db_session (AsyncSession): Database session for interacting with the database.
         user_id (int): The user ID who is creating the receipt.
+        db_session (AsyncSession): Database session for interacting with the database.
         receipt_data (ReceiptRequestSchema): Data for creating a receipt.
 
     Returns:
@@ -62,12 +65,14 @@ async def create_receipt(
 
     return await get_receipt(
         receipt_id=receipt.id,
-        db_session=db_session
+        db_session=db_session,
+        user_id=user_id
     )
 
 
 async def get_receipt(
     receipt_id: int,
+    user_id: int,
     db_session: AsyncSession
 ) -> dict:
     """
@@ -75,6 +80,7 @@ async def get_receipt(
 
     Args:
         receipt_id (int): The ID of the receipt to be retrieved.
+        user_id (int): The user ID who want to get receipt.
         db_session (AsyncSession): The database session for interacting with the database.
 
     Raises:
@@ -84,7 +90,7 @@ async def get_receipt(
         dict: The receipt data including its ID, products, payment info, and other details.
     """
 
-    # Retrieve the receipt from the database with its related items and payment method
+    # Get receipt from DB
     receipt = await db_session.scalar(
         select(
             Receipt
@@ -92,15 +98,17 @@ async def get_receipt(
             joinedload(
                 Receipt.products
             ),
-        ).where(Receipt.id == receipt_id)
+        ).where(
+            Receipt.id == receipt_id,
+            Receipt.user_id == user_id,
+        )
     )
 
     if not receipt:
-        # If no receipt found with the given ID, raise an error
+        # Not found
         raise HTTPException(
             status_code=404,
             detail=f"Receipt with ID {receipt_id} not found"
         )
 
-    # Return the receipt data in a structured format
     return receipt

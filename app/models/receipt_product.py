@@ -7,7 +7,7 @@ from sqlalchemy import (
     Column,
     Integer,
     String,
-    Float,
+    Numeric,
     ForeignKey
 )
 
@@ -37,7 +37,7 @@ class ReceiptProduct(Base):
     id = Column(Integer, primary_key=True, index=True)
     receipt_id = Column(Integer, ForeignKey('receipt.id'), nullable=False)
     title = Column(String, nullable=False)
-    price = Column(Float(10, 2), nullable=False)
+    price = Column(Numeric(10, 2), nullable=False)
     quantity = Column(Integer, nullable=False)
 
     # Relationship to 'Receipt' table
@@ -45,3 +45,11 @@ class ReceiptProduct(Base):
         "Receipt",
         back_populates="products"
     )
+
+    @property
+    def total(self) -> float:
+        """
+        Calculates the total price for a product by multiplying the unit price by the quantity.
+        """
+
+        return self.price * self.quantity

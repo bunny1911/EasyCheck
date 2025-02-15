@@ -25,7 +25,6 @@ async def create_user(
 ) -> dict:
     """
     Endpoint for user registration.
-    It accepts user data, creates a new user in the database, and returns the created user object.
     """
 
     return await funcs.create_user(
@@ -39,15 +38,14 @@ async def create_user(
 
 @user_router.post(
     "/login",
-    response_model=UserResponseLoginSchema
+    response_model=UserResponseLoginSchema,
 )
 async def login_user(
     user: UserRequestLoginSchema,
     db_session: AsyncSession = Depends(get_session)
 ) -> dict:
     """
-    Endpoint for user registration.
-    It accepts user data, creates a new user in the database, and returns the created user object.
+    Endpoint for user sing in.
     """
 
     return await funcs.login_user(
