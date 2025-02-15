@@ -1,8 +1,9 @@
 # coding=utf-8
 
 from datetime import datetime, timedelta
-from fastapi import HTTPException
-from jwt import encode
+from fastapi import HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
+from jwt import encode, PyJWTError, decode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -14,6 +15,50 @@ from app.conf import SECRET_KEY, ALGORITHM
 
 # Create an instance of CryptContext for password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+# OAuth2PasswordBearer defines the token location for FastAPI
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+
+def get_current_user_login(token: str = Depends(oauth2_scheme)) -> str:
+    """
+    Function to retrieve the current user's login from the JWT token.
+
+    Decodes the JWT and returns the login from the "sub" field.
+    This function is used as a dependency to check if the user is authenticated.
+
+    Args:
+        token: JWT token provided in the request.
+
+    Raises:
+        HTTPException: If the token is invalid or expired.
+
+    Returns:
+        str: The login of the authenticated user.
+    """
+
+    # Defined credentials exception
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        # Decode the JWT token and get login
+        payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        login: str = payload.get("sub")
+
+        if login is None:
+            # Not found
+            raise credentials_exception
+
+        return login
+
+    except PyJWTError:
+        # Error
+        raise credentials_exception
 
 
 def create_access_token(
