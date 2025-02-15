@@ -17,9 +17,9 @@ if TYPE_CHECKING:
     from ..models import Receipt
 
 
-class ReceiptItem(Base):
+class ReceiptProduct(Base):
     """
-    Model of table for save receipt-item
+    Model of table for save receipt-product
 
     Attributes:
         id (int): Unique identifier for the receipt item.
@@ -32,7 +32,7 @@ class ReceiptItem(Base):
         receipt (Receipt): The associated receipt to which this item belongs.
     """
 
-    __tablename__ = 'receipt_item'
+    __tablename__ = 'receipt_product'
 
     id = Column(Integer, primary_key=True, index=True)
     receipt_id = Column(Integer, ForeignKey('receipt.id'), nullable=False)

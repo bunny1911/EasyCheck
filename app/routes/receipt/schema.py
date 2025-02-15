@@ -3,7 +3,7 @@ from typing import List
 from datetime import datetime
 
 
-class ReceiptItemSchema(BaseModel):
+class ReceiptProductSchema(BaseModel):
     title: str = Field(
         ...,
         example="Product Name",
@@ -19,9 +19,6 @@ class ReceiptItemSchema(BaseModel):
         example=2.5,
         description="The quantity or weight of the product/item purchased."
     )
-    total: float = Field(
-        None,
-    )
 
     class Config:
         orm_mode = True
@@ -35,13 +32,14 @@ class ReceiptPaymentSchema(BaseModel):
     )
     amount: float = Field(
         ...,
+        alias="receipt.amount",
         example=150.75,
         description="The total amount paid for the receipt."
     )
 
 
 class ReceiptRequestSchema(BaseModel):
-    products: List[ReceiptItemSchema] = Field(
+    products: List[ReceiptProductSchema] = Field(
         ...,
         example=[
             {
@@ -68,8 +66,28 @@ class ReceiptRequestSchema(BaseModel):
 
 
 class ReceiptResponseSchema(BaseModel):
-    id: int
-    products: List[ReceiptItemSchema] = Field(
+    id: int = Field(
+        ...,
+        example=12345,
+        description="The unique identifier for the receipt."
+    )
+
+    total: float = Field(
+        ...,
+        example=12.45,
+        description="The total amount of the receipt, which is the sum of all product totals."
+    )
+    rest: float = Field(
+        ...,
+        example=12.78,
+        description="The remaining balance to be refunded to the user after the payment."
+    )
+    created_at: datetime = Field(
+        ...,
+        example=datetime.utcnow(),
+        description="The timestamp when the receipt was created, represented in ISO 8601 format. This field is optional."
+    )
+    products: List[ReceiptProductSchema] = Field(
         ...,
         example=[
             {
@@ -95,12 +113,6 @@ class ReceiptResponseSchema(BaseModel):
     #     },
     #     description="Payment information for the receipt, including type and amount."
     # )
-    total: float
-    rest: float
-    created_at: datetime | None = Field(
-        None,
-        description="The timestamp when the user account was created.",
-    )
 
     class Config:
         orm_mode = True

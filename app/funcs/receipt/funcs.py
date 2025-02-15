@@ -1,8 +1,10 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
-from fastapi import HTTPException
-from app.models import Receipt, ReceiptItem, PaymentMethod
+
 from app.routes.receipt.schema import ReceiptRequestSchema
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
+from fastapi import HTTPException
+from sqlalchemy.future import select
+from app.models import Receipt, ReceiptProduct
 
 
 async def create_receipt(
@@ -26,30 +28,12 @@ async def create_receipt(
     total = 0
     items = []
 
-    # Check user
-    payment_method: PaymentMethod | None = await db_session.scalar(
-        select(
-            PaymentMethod
-        ).where(
-            (
-                PaymentMethod.title == receipt_data.payment.type
-            )
-        )
-    )
-
-    if not payment_method:
-        # Not found
-        raise HTTPException(
-            status_code=400,
-            detail=f"Payment method with type {receipt_data.payment.type} not found"
-        )
-
     for product in receipt_data.products:
         # Defined total price for item
         item_total = product.price * product.quantity
 
         items.append(
-            ReceiptItem(
+            ReceiptProduct(
                 title=product.title,
                 price=product.price,
                 quantity=product.quantity,
@@ -65,10 +49,10 @@ async def create_receipt(
     receipt = Receipt(
         user_id=user_id,
         total=total,
-        payment_method_id=payment_method.id,
+        payment_type=receipt_data.payment.type,
         payment_amount=receipt_data.payment.amount,
         rest=rest,
-        items=items
+        products=items
     )
 
     # Save all changes
@@ -76,17 +60,13 @@ async def create_receipt(
     await db_session.commit()
     await db_session.refresh(receipt)
 
-    return receipt
+    return await get_receipt(
+        receipt_id=receipt.id,
+        db_session=db_session
+    )
 
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
-from fastapi import HTTPException
-from sqlalchemy.future import select
-from app.models import Receipt, PaymentMethod, ReceiptItem
-
-
-async def get_receipt_by_id(
+async def get_receipt(
     receipt_id: int,
     db_session: AsyncSession
 ) -> dict:
@@ -111,12 +91,8 @@ async def get_receipt_by_id(
         ).options(
             joinedload(
                 Receipt.products
-            ),  # Load associated receipt items
-            joinedload(
-                Receipt.payment_method
-            )  # Load associated payment method
-        )
-        .where(Receipt.id == receipt_id)
+            ),
+        ).where(Receipt.id == receipt_id)
     )
 
     if not receipt:
