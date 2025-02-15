@@ -11,6 +11,7 @@ from passlib.context import CryptContext
 
 from app.models import User
 from app.conf import SECRET_KEY, ALGORITHM
+from app.db import get_session
 
 
 # Create an instance of CryptContext for password hashing
@@ -21,7 +22,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-def get_current_user_login(token: str = Depends(oauth2_scheme)) -> str:
+def get_user_id(
+        db_session: AsyncSession = Depends(get_session),
+        token: str = Depends(oauth2_scheme)
+) -> int:
     """
     Function to retrieve the current user's login from the JWT token.
 
@@ -29,13 +33,14 @@ def get_current_user_login(token: str = Depends(oauth2_scheme)) -> str:
     This function is used as a dependency to check if the user is authenticated.
 
     Args:
+        db_session (AsyncSession): Database session for interacting with the database.
         token: JWT token provided in the request.
 
     Raises:
         HTTPException: If the token is invalid or expired.
 
     Returns:
-        str: The login of the authenticated user.
+        int: The Id of the authenticated user.
     """
 
     # Defined credentials exception
@@ -54,7 +59,22 @@ def get_current_user_login(token: str = Depends(oauth2_scheme)) -> str:
             # Not found
             raise credentials_exception
 
-        return login
+        # Check user
+        user: User | None = await db_session.scalar(
+            select(
+                User
+            ).where(
+                (
+                    User.login == login
+                )
+            )
+        )
+
+        if not user:
+            # Exist user
+            raise credentials_exception
+
+        return user.id
 
     except PyJWTError:
         # Error
@@ -116,12 +136,12 @@ async def create_user(
     """
 
     # Check user
-    user: User = await db_session.scalar(
+    user: User | None = await db_session.scalar(
         select(
             User
         ).where(
             (
-                    User.login == login
+                User.login == login
             )
         )
     )
