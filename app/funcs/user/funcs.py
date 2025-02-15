@@ -1,15 +1,49 @@
 # coding=utf-8
 
+from datetime import datetime, timedelta
 from fastapi import HTTPException
+from jwt import encode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from passlib.context import CryptContext
 
 from app.models import User
+from app.conf import SECRET_KEY, ALGORITHM
+
 
 # Create an instance of CryptContext for password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def create_access_token(
+        login: str,
+        expires_delta: int | None = 30
+) -> str:
+    """
+    Function to create a JWT token with an expiration time.
+
+    Args:
+        login (str): The unique identifier for the user (typically the user's login).
+        expires_delta (int | None): The expiration time of the token in minutes.
+
+    Returns:
+        str: The generated JWT token, encoded with the user's login and expiration time.
+    """
+
+    # Defined expire time
+    expire_time = datetime.utcnow() + timedelta(minutes=expires_delta)
+
+    # Defined encode value
+    encode_value = {
+        "sub": login,
+        "exp": expire_time
+    }
+
+    # Encode the data into a JWT token
+    encoded_jwt = encode(encode_value, SECRET_KEY, algorithm=ALGORITHM)
+
+    return encoded_jwt
 
 
 async def create_user(
@@ -71,3 +105,42 @@ async def create_user(
     await db_session.refresh(new_user)
 
     return new_user
+
+
+async def login_user(
+        db_session: AsyncSession,
+        login: str,
+        password: str
+) -> dict:
+    """
+    Authenticates a user based on login and password, and generates a JWT token upon successful login.
+
+    Args:
+        db_session (AsyncSession): The database session used to interact with the database asynchronously.
+        login (str): The user's login (username) to identify the user.
+        password (str): The user's password to verify the user's identity.
+
+    Raises:
+        HTTPException: If the user is not found or the password is incorrect, raises a 401 Unauthorized error.
+
+    Returns:
+        str: The JWT token.
+    """
+
+    # Get user from DB
+    user: User | None = await db_session.execute(
+        select(User).filter(User.login == login)
+    )
+    db_user = user.scalars().first()
+
+    if db_user is None or pwd_context.verify(password, db_user.hashed_password):
+        # Not found
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid username or password"
+        )
+
+    # Generate jwt-token
+    jwt_token = create_access_token(login=login, expires_delta=60)
+
+    return jwt_token
