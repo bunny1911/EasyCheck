@@ -133,7 +133,7 @@ async def login_user(
     )
     db_user = user.scalars().first()
 
-    if db_user is None or pwd_context.verify(password, db_user.hashed_password):
+    if db_user is None or not pwd_context.verify(password, db_user.hashed_password):
         # Not found
         raise HTTPException(
             status_code=401,
@@ -143,4 +143,6 @@ async def login_user(
     # Generate jwt-token
     jwt_token = create_access_token(login=login, expires_delta=60)
 
-    return jwt_token
+    return {
+        "access_token": jwt_token
+    }
