@@ -1,6 +1,7 @@
 # coding=utf-8
 
 from fastapi import FastAPI
+from app.routes.user.funcs import user_router
 
 
 app = FastAPI(
@@ -11,9 +12,4 @@ app = FastAPI(
 
 
 # Defined base rout
-@app.get("/")
-def read_root():
-    return {"message": "Hello, FastAPI!"}
-
-
-
+app.include_router(user_router)

@@ -1,33 +1,31 @@
 # coding=utf-8
 
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .conf import DATABASE_URL
 
 # Connect to DB
-engine = create_engine(DATABASE_URL)
+engine = create_async_engine(DATABASE_URL, echo=True)
 
 # Defined session
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    autoflush=False,
+    autocommit=False,
+)
 
 # Defined base model class
 Base = declarative_base()
 
 
-def get_session() -> Session:
+async def get_session():
     """
-    Returns a new session to interact with the database.
+    Generates a new database session for each request.
     """
 
-    # Create a new session
-    db = SessionLocal()
-
-    try:
-        # Provide session to the route or operation
-        yield db
-
-    finally:
-        # Ensure the session is closed when done
-        db.close()
+    async with SessionLocal() as session:
+        yield session

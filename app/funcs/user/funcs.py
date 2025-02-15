@@ -3,9 +3,10 @@
 from fastapi import HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from passlib.context import CryptContext
 
-from ..models import User
+from app.models import User
 
 # Create an instance of CryptContext for password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -36,12 +37,17 @@ async def create_user(
     """
 
     # Check user
-    db_user = await db_session.execute(
-        db_session.query(User).filter(User.login == login)
+    user: User = await db_session.scalar(
+        select(
+            User
+        ).where(
+            (
+                    User.login == login
+            )
+        )
     )
-    db_user = db_user.first()
 
-    if db_user:
+    if user:
         # Exist user
         raise HTTPException(
             status_code=400,
