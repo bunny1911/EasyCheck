@@ -155,7 +155,7 @@ class ReceiptsRequestSchema(BaseModel):
     )
     page: int = Field(
         0,
-        description="Page number for pagination. Default is 1.",
+        description="Page number for pagination. Default is 0.",
         examples=[1]
     )
     on_page: int = Field(
