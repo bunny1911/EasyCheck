@@ -8,7 +8,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Defined DB URL
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = (
+    f"postgresql+asyncpg://"
+    f"{os.getenv('DATABASE_USERNAME')}:"
+    f"{os.getenv('DATABASE_PASSWORD')}@"
+    f"{os.getenv('DATABASE_HOST')}:"
+    f"{os.getenv('DATABASE_PORT')}/"
+    f"{os.getenv('DATABASE_NAME')}"
+)
 
 # Defined secret key
 SECRET_KEY = os.getenv("SECRET_KEY")
