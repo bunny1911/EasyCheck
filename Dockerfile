@@ -11,6 +11,9 @@ COPY . .
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install -r requirements.txt
 
+# Run migrations
+CMD ["alembic", "upgrade", "head"]
+
 # Expose server port
 EXPOSE 8000
 

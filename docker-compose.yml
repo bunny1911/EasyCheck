@@ -1,0 +1,42 @@
+name: EasyCheck
+
+volumes:
+  pgdata:
+
+services:
+
+  pgdb:
+    image: postgres:17
+
+    restart: always
+
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+    ports:
+      - "15432:5432"
+
+  back:
+    image: back
+
+    build:
+      dockerfile: ./Dockerfile
+
+    network_mode: host
+
+    ports:
+      - 8000:8000
+
+    environment:
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_PORT=15432
+      - DATABASE_NAME=postgres
+
+    depends_on:
+      - pgdb
