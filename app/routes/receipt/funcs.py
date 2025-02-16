@@ -80,3 +80,23 @@ async def get_receipts(
         page=filters_data.page,
         on_page=filters_data.on_page,
     )
+
+
+@receipt_router.get(
+    "/{receipt_id}/text",
+    response_model=str
+)
+async def get_receipt_text(
+    receipt_id: int,
+    filters_data: ReceiptTextRequestSchema = Depends(),
+    db_session: AsyncSession = Depends(get_session),
+) -> dict:
+    """
+    Endpoint for retrieve the textual representation of a receipt.
+    """
+
+    return await funcs.get_receipt_text(
+        receipt_id=receipt_id,
+        db_session=db_session,
+        width=filters_data.width
+    )

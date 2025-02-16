@@ -10,17 +10,17 @@ from app.validation import ValidationValue
 class UserSchema(BaseModel):
     first_name: str = Field(
         ...,
-        example="Wheel",
+        examples=["Wheel"],
         description="The first name of the user.",
     )
     last_name: str = Field(
         ...,
-        example="Smet",
+        examples=["Smet"],
         description="The last name of the user.",
     )
     login: str = Field(
         ...,
-        example="wheel_smet",
+        examples=["wheel_smet"],
         description="The unique login (username) for the user.",
         min_length=ValidationValue.login_min_length,
         max_length=ValidationValue.login_max_length,
@@ -31,7 +31,7 @@ class UserSchema(BaseModel):
 class UserRequestRegisterSchema(UserSchema):
     password: str = Field(
         ...,
-        example="1111111111",
+        examples=["1111111111"],
         description="The plain password provided by the user. It will be hashed before storing.",
         min_length=ValidationValue.password_min_length,
         max_length=ValidationValue.password_max_length,
@@ -55,7 +55,7 @@ class UserResponseRegisterSchema(UserSchema):
 class UserRequestLoginSchema(BaseModel):
     login: str = Field(
         ...,
-        example="wheel_smet",
+        examples=["wheel_smet"],
         description="The unique login (username) for the user.",
         min_length=ValidationValue.login_min_length,
         max_length=ValidationValue.login_max_length,
@@ -63,7 +63,7 @@ class UserRequestLoginSchema(BaseModel):
     )
     password: str = Field(
         ...,
-        example="1111111111",
+        examples=["1111111111"],
         description="The plain password provided by the user. It will be hashed before storing.",
         min_length=ValidationValue.password_min_length,
         max_length=ValidationValue.password_max_length,
@@ -77,12 +77,12 @@ class UserRequestLoginSchema(BaseModel):
 class UserResponseLoginSchema(BaseModel):
     token_type: str = Field(
         ...,
-        example="bearer",
+        examples=["bearer"],
         description="The type of token."
     )
     access_token: str = Field(
         ...,
-        example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiaWF0IjoxNjEyMzQ1Njc4fQ.Dk69",
+        examples=["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiaWF0IjoxNjEyMzQ1Njc4fQ.Dk69"],
         description=(
             "The JWT access token generated after successful authentication."
             " This token is used for accessing protected resources in the API."
