@@ -1,5 +1,5 @@
 # coding=utf-8
-
+from typing import Literal
 from decimal import Decimal
 from datetime import datetime
 
@@ -15,12 +15,14 @@ class ReceiptProductRequestSchema(BaseModel):
     price: Decimal = Field(
         ...,
         example=99.99,
-        description="The price per unit of the product/item."
+        description="The price per unit of the product/item.",
+        ge=0.1,
     )
     quantity: int = Field(
         ...,
         example=2.5,
-        description="The quantity or weight of the product/item purchased."
+        description="The quantity or weight of the product/item purchased.",
+        ge=1,
     )
 
     class Config:
@@ -38,7 +40,7 @@ class ReceiptProductResponseSchema(ReceiptProductRequestSchema):
 
 
 class ReceiptPaymentSchema(BaseModel):
-    type: str = Field(
+    type: Literal["cash", "card"] = Field(
         ...,
         example="cash",
         description="The type of payment for the receipt, can be either 'cash' or 'card'."
@@ -96,7 +98,7 @@ class ReceiptResponseSchema(BaseModel):
     )
     created_at: datetime = Field(
         ...,
-        example=datetime.utcnow(),
+        example=datetime.now(),
         description="The timestamp when the receipt was created, represented in ISO 8601 format."
     )
     products: list[ReceiptProductResponseSchema] = Field(

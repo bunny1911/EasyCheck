@@ -4,6 +4,8 @@ from datetime import datetime
 
 from pydantic import Field, BaseModel
 
+from app.validation import ValidationValue
+
 
 class UserSchema(BaseModel):
     first_name: str = Field(
@@ -20,6 +22,9 @@ class UserSchema(BaseModel):
         ...,
         example="wheel_smet",
         description="The unique login (username) for the user.",
+        min_length=ValidationValue.login_min_length,
+        max_length=ValidationValue.login_max_length,
+        pattern=ValidationValue.login_regex,
     )
 
 
@@ -28,6 +33,9 @@ class UserRequestRegisterSchema(UserSchema):
         ...,
         example="1111111111",
         description="The plain password provided by the user. It will be hashed before storing.",
+        min_length=ValidationValue.password_min_length,
+        max_length=ValidationValue.password_max_length,
+        pattern=ValidationValue.password_regex,
     )
 
     class Config:
@@ -49,11 +57,17 @@ class UserRequestLoginSchema(BaseModel):
         ...,
         example="wheel_smet",
         description="The unique login (username) for the user.",
+        min_length=ValidationValue.login_min_length,
+        max_length=ValidationValue.login_max_length,
+        pattern=ValidationValue.login_regex,
     )
     password: str = Field(
         ...,
         example="1111111111",
         description="The plain password provided by the user. It will be hashed before storing.",
+        min_length=ValidationValue.password_min_length,
+        max_length=ValidationValue.password_max_length,
+        pattern=ValidationValue.password_regex,
     )
 
     class Config:
