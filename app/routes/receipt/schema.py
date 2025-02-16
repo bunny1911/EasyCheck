@@ -34,7 +34,7 @@ class ReceiptProductResponseSchema(ReceiptProductRequestSchema):
     )
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ReceiptPaymentSchema(BaseModel):
@@ -127,7 +127,7 @@ class ReceiptResponseSchema(BaseModel):
     )
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ReceiptsRequestSchema(BaseModel):
@@ -187,4 +187,4 @@ class ReceiptsResponseSchema(BaseModel):
     results: list[ReceiptResponseSchema]
 
     class Config:
-        orm_mode = True
+        from_attributes = True

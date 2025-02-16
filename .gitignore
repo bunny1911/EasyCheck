@@ -2,3 +2,5 @@
 /alembic.ini
 /.env
 /migrations/env.py
+/.python-version
+/.idea
