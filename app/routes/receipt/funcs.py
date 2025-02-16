@@ -61,9 +61,10 @@ async def get_receipt_by_id(
     response_model=ReceiptsResponseSchema,
 )
 async def get_receipts(
-    filters_data: ReceiptsRequestSchema,
-    user_id: int = Depends(get_user_id),
     db_session: AsyncSession = Depends(get_session),
+    user_id: int = Depends(get_user_id),
+    filters_data: ReceiptsRequestSchema = Depends(),
+
 ) -> dict:
     """
     Endpoint for retrieve a list of receipts, including associated products and payment details.

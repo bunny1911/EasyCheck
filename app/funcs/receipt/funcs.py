@@ -3,6 +3,7 @@
 from datetime import datetime
 from fastapi import HTTPException
 
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, Query
 from sqlalchemy.future import select
@@ -122,7 +123,7 @@ async def get_receipts(
     end_date: datetime | None = None,
     total: float | None = None,
     payment_type: str | None = None,
-    page: int | None = 1,
+    page: int | None = 0,
     on_page: int | None = 10
 ) -> dict:
     """
@@ -169,23 +170,30 @@ async def get_receipts(
 
     if payment_type:
         # # Filter by payment type
-        query = query.join(Receipt.payment_method).filter(Receipt.payment_method.title == payment_type)
+        query = query.filter(Receipt.payment_type == payment_type)
+
+    # Defined total count of receipts
+    total_receipts_result = await db_session.execute(
+        select(
+            func.count()
+        ).select_from(
+            query.subquery()
+        )
+    )
+    total_receipts = total_receipts_result.scalar_one() or 0
 
     # Apply pagination
-    query = query.offset((page - 1) * on_page).limit(on_page)
+    query = query.limit(on_page).offset(page * on_page)
 
     # Defined receipts with pagination and filters
     results = await db_session.execute(query)
     receipts: list[Receipt] = results.scalars().unique().all()
 
-    # Defined total count of results
-    total = len(receipts)
-
     # Defined next page
-    next_page = page + 1 if len(receipts) == on_page else None
+    next_page = (page + 1 if on_page * (page + 1) < total_receipts else None)
 
     return {
-        "total": total,
+        "total": total_receipts,
         "page": page,
         "on_page": on_page,
         "next_page": next_page,

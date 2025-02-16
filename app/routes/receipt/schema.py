@@ -148,13 +148,13 @@ class ReceiptsRequestSchema(BaseModel):
         description="Optional filter to get receipts with a total greater than or equal to this value.",
         example=100.00
     )
-    payment_type: str | None = Field(
+    payment_type: Literal["cash", "card"] | None = Field(
         None,
-        description="Optional filter to get receipts based on payment type. Values: 'cash' or 'card'.",
+        description="Optional filter to get receipts based on payment type.",
         example="cash"
     )
     page: int = Field(
-        1,
+        0,
         description="Page number for pagination. Default is 1.",
         example=1
     )
