@@ -15,7 +15,7 @@ RUN python3 -m pip install -r requirements.txt
 CMD ["alembic", "upgrade", "head"]
 
 # Expose server port
-EXPOSE 8000
+EXPOSE 80
 
 # Run server
-CMD ["uvicorn", "app.main:app", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
