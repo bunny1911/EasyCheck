@@ -23,6 +23,9 @@ class ReceiptProductRequestSchema(BaseModel):
         description="The quantity or weight of the product/item purchased."
     )
 
+    class Config:
+        extra = "forbid"
+
 
 class ReceiptProductResponseSchema(ReceiptProductRequestSchema):
     total: Decimal = Field(

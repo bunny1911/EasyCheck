@@ -30,6 +30,9 @@ class UserRequestRegisterSchema(UserSchema):
         description="The plain password provided by the user. It will be hashed before storing.",
     )
 
+    class Config:
+        extra = "forbid"
+
 
 class UserResponseRegisterSchema(UserSchema):
     created_at: datetime = Field(
@@ -52,6 +55,9 @@ class UserRequestLoginSchema(BaseModel):
         example="1111111111",
         description="The plain password provided by the user. It will be hashed before storing.",
     )
+
+    class Config:
+        extra = "forbid"
 
 
 class UserResponseLoginSchema(BaseModel):
