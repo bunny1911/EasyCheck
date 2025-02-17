@@ -12,11 +12,15 @@ class UserSchema(BaseModel):
         ...,
         examples=["Wheel"],
         description="The first name of the user.",
+        pattern=ValidationValue.user_regex,
+        min_length=ValidationValue.user_min_length,
     )
     last_name: str = Field(
         ...,
         examples=["Smet"],
         description="The last name of the user.",
+        pattern=ValidationValue.user_regex,
+        min_length=ValidationValue.user_min_length,
     )
     login: str = Field(
         ...,
