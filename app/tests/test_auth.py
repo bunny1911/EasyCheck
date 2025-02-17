@@ -26,7 +26,12 @@ VALID_USER = {
         ("😊", "User", 422),  # Emojis are not allowed in the name
     ]
 )
-def test_register_user_name(client: TestClient, first_name, last_name, expected_status):
+def test_register_user_name(
+        client: TestClient,
+        first_name: str,
+        last_name: str,
+        expected_status: int
+) -> None:
     response = client.post(
         "/users/register",
         json={
@@ -53,10 +58,15 @@ def test_register_user_name(client: TestClient, first_name, last_name, expected_
         ("user.name_123", 422),  # Combination of dot, underscore, and numbers
     ]
 )
-def test_register_user_login(client: TestClient, login, expected_status):
+def test_register_user_login(
+        client: TestClient,
+        login: str,
+        expected_status: int,
+) -> None:
     """
     Tests the validation of login during user registration.
     """
+
     response = client.post(
         "/users/register",
         json={
@@ -80,10 +90,15 @@ def test_register_user_login(client: TestClient, login, expected_status):
         ("P@ ssword", 422),  # Spaces inside the password are not allowed
     ]
 )
-def test_register_user_password(client: TestClient, password, expected_status):
+def test_register_user_password(
+        client: TestClient,
+        password: str,
+        expected_status: int,
+) -> None:
     """
     Tests the validation of password during user registration.
     """
+
     response = client.post(
         "/users/register",
         json={
