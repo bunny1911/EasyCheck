@@ -3,6 +3,8 @@
 import pytest
 import pytest_asyncio
 import asyncio
+import random
+import string
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from httpx import ASGITransport, AsyncClient
@@ -89,3 +91,13 @@ async def client(override_get_session) -> AsyncClient:
         base_url="http://test"
     ) as async_client:
         yield async_client
+
+
+def generate_random_username(prefix="test_user_", length=8):
+    """
+    Generates a random username that meets the required regex pattern.
+    """
+
+    random_part = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+    return f"{prefix}{random_part}"

@@ -1,22 +1,9 @@
 # coding=utf-8
 
-import random
-import string
-
 from app.models import Receipt
 
 from ..base import *
 from .cases import RECEIPT_CREATION_TEST_CASES
-
-
-def generate_random_username(prefix="test_user_", length=8):
-    """
-    Generates a random username that meets the required regex pattern.
-    """
-
-    random_part = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-
-    return f"{prefix}{random_part}"
 
 
 @pytest.mark.asyncio
