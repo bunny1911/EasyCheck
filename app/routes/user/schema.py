@@ -93,3 +93,11 @@ class UserResponseLoginSchema(BaseModel):
             " It contains user identification and an expiration time."
         ),
     )
+    refresh_token: str = Field(
+        ...,
+        examples=["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwiaWF0IjoxNjEyMzQ1Njc4fQ.Dk69"],
+        description=(
+            "A JWT refresh token used to obtain a new access token after the current one expires."
+            " It helps maintain authentication without requiring the user to log in again."
+        ),
+    )

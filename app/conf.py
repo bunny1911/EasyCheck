@@ -13,6 +13,12 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # Defined encryption algorithm
 ALGORITHM = os.getenv("ALGORITHM")
 
+# Defined access token
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+
+# Defined refresh token
+REFRESH_TOKEN_EXPIRE_MINUTES = os.getenv("REFRESH_TOKEN_EXPIRE_MINUTES")
+
 
 # Defined DB URL
 DATABASE_URL = (

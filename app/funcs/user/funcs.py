@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt import encode, PyJWTError, decode
@@ -10,8 +10,13 @@ from sqlalchemy.future import select
 from passlib.context import CryptContext
 
 from app.models import User
-from app.conf import SECRET_KEY, ALGORITHM
 from app.db import get_session
+from app.conf import (
+    SECRET_KEY,
+    ALGORITHM,
+    REFRESH_TOKEN_EXPIRE_MINUTES,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+)
 
 
 # Create an instance of CryptContext for password hashing
@@ -81,7 +86,7 @@ async def get_user_id(
         raise credentials_exception
 
 
-def create_access_token(
+def create_token(
         login: str,
         expires_delta: int | None = 30
 ) -> str:
@@ -97,7 +102,7 @@ def create_access_token(
     """
 
     # Defined expire time
-    expire_time = datetime.utcnow() + timedelta(minutes=expires_delta)
+    expire_time = datetime.now(UTC) + timedelta(minutes=int(expires_delta))
 
     # Defined encode value
     encode_value = {
@@ -178,7 +183,7 @@ async def login_user(
         password: str
 ) -> dict:
     """
-    Authenticates a user based on login and password, and generates a JWT token upon successful login.
+    Authenticates a user based on login and password, and generates JWT tokens (access & refresh) upon successful login.
 
     Args:
         db_session (AsyncSession): The database session used to interact with the database asynchronously.
@@ -189,29 +194,25 @@ async def login_user(
         HTTPException: If the user is not found or the password is incorrect, raises a 401 Unauthorized error.
 
     Returns:
-        str: The JWT token.
+        dict: A dictionary containing the access token, refresh token, and token type.
     """
 
     # Get user from DB
-    user: User | None = await db_session.execute(
-        select(User).filter(User.login == login)
-    )
-    db_user = user.scalars().first()
+    result = await db_session.execute(select(User).filter(User.login == login))
+    db_user = result.scalars().first()
 
     if db_user is None or not pwd_context.verify(password, db_user.hashed_password):
-        # Not found
         raise HTTPException(
             status_code=401,
             detail="Invalid username or password"
         )
 
-    # Generate jwt-token
-    jwt_token = create_access_token(login=login, expires_delta=60)
-
-    # Defined token type
-    token_type = "bearer"
+    # Generate access and refresh tokens
+    access_token = create_token(login=login, expires_delta=ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token = create_token(login=login, expires_delta=REFRESH_TOKEN_EXPIRE_MINUTES)
 
     return {
-        "access_token": jwt_token,
-        "token_type": token_type,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
     }
