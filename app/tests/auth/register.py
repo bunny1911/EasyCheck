@@ -24,6 +24,7 @@ async def test_create_user(
 
     assert response.status_code == expected_status
 
+    # Verify user exists in the database when status is 200
     if expected_status == 200:
         # Get user from DB
         result = await db_session.execute(
