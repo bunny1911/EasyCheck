@@ -1,4 +1,5 @@
 # coding=utf-8
+
 from typing import Literal
 from decimal import Decimal
 from datetime import datetime
@@ -55,6 +56,7 @@ class ReceiptPaymentSchema(BaseModel):
 class ReceiptRequestSchema(BaseModel):
     products: list[ReceiptProductRequestSchema] = Field(
         ...,
+        min_items=1,
         examples=[
             {
                 "title": "Laptop",
